@@ -146,7 +146,7 @@ local function getNextNodes()
     local from = playerNode
     while pathSolution[1] and isSameMap(playerNode, pathSolution[1]) do
         local toMap = pathSolution[1]
-        if exceptionExist(linkExceptions, from, toMap) or exceptionExist(npcExceptions, from, toMap) or exceptionExist(digways, from, toMap) then 
+        if exceptionExist(linkExceptions, from, toMap) or exceptionExist(npcExceptions, from, toMap) or exceptionExist(digways, from, toMap) then
             return from, toMap
         end
         from = pathSolution[1]
@@ -428,7 +428,7 @@ end
 local function onPathfinderStart()
     globalMap = assert(_globalMap(), "Pathfinder --> Error : failed to load map")
     local ss = assert(_ss(), "Pathfinder --> Error : failed to load settings")
-	npcExceptions = _npcExceptions
+    npcExceptions = _npcExceptions()
     initSettings(ss)
 end
 

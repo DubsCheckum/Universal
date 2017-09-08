@@ -15,6 +15,7 @@ local Pokecenters = {
     "Indigo Plateau Center Johto",
     "Indigo Plateau Center",
     "Pokecenter Love Island",
+    "Pokecenter Trainers Valley",
     -- Johto
     "Olivine Pokecenter",
     "Pokecenter Azalea",
@@ -47,8 +48,6 @@ local Pokecenters = {
     "Pokecenter Eastern Peak",
     "Pokecenter Western Peak",
     "Pokecenter Leev Town",
-	-- Trainers Valley
-	"Pokecenter Trainers Valley",
     -- Sevii Islands
     "Pokecenter One Island",
     "Pokecenter Two Island",
@@ -59,6 +58,7 @@ local Pokecenters = {
     "Pokecenter Seven Island",
     -- Event
     "Pokecenter Vulcanic Town",
+	"Pokecenter Cryofrost Town",
 }
 
 return Pokecenters

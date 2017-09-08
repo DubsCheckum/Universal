@@ -1,0 +1,10 @@
+v2.0.0 | 2017-08-28
+
+Basic Catcher
++ Prettify config and log messages
++ Move all funcs into one lib file
++ Add proper anti-trap
++ Add auto-config for some things
++ Add catch event Pokemon
++ Update to Zonz Pathfinder v2.6.2
+

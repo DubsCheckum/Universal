@@ -27,11 +27,6 @@ local function solveNpc(message, n1, n2)
         pushDialogAnswer(npcExce[2])
         log("Pathfinder: Pushing dialog: " .. npcExce[2])
     end
-	if message == npcExce[4] then
-        pushDialogAnswer(npcExce[3])
-        log("Pathfinder: Pushing dialog: " .. npcExce[3])
-    end	
-		
 end
 
 local function solveElevator(message, n1, n2)
@@ -155,11 +150,11 @@ local function solveDialog(message, pf)
         return solveTransmatReached(message, n2)
     end
 end
- 
+
 local function onDialogSolverStart()
-    npcExceptions = _npcExceptions
+    npcExceptions = _npcExceptions()
 end
- 
+
 registerHook("onStart", onDialogSolverStart)
 
 return { solveDialog = solveDialog }
