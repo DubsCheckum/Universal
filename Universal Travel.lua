@@ -18,8 +18,8 @@ description = "Press Start."
 --JOHTO
 --Pokecenter Azalea             --Pokecenter Ecruteak     --Pokecenter Violet City     --Ruins Of Alph
 --Pokecenter Blackthorn         --Pokecenter Goldenrod    --Dragons Den                --Ilex Forest
---Pokecenter Cherrygrove City   --Pokecenter Mahogany     --Johto Safari Zone Lobby    
---Pokecenter Cianwood           --Olivine Pokecenter           
+--Pokecenter Cherrygrove City   --Pokecenter Mahogany     --Johto Safari Zone Lobby
+--Pokecenter Cianwood           --Olivine Pokecenter
 --
 
 --HOENN
@@ -29,7 +29,7 @@ description = "Press Start."
 --Pokecenter Fortree City       --Pokecenter Mossdeep City     --Pokecenter Rustboro City     --Pokemon League Hoenn
 --
 
-local location = ""
+local location = "Pokecenter Celadon"
 
 local catchNotCaught = 	false --set true if you want to catch pokemon not listed as caught in your pokedex
 
@@ -130,7 +130,7 @@ function onBattleAction()
 			return
 		end
 	end
-	if isWildBattle() then 
+	if isWildBattle() then
 		if isPokemonUsable(getActivePokemonNumber()) then
 			if fight then
 				return attack() or sendUsablePokemon() or run()
@@ -147,7 +147,7 @@ function onBattleAction()
 		if failedRun then
 			failedRun = false
 			return sendUsablePokemon() or attack()
-		else 
+		else
 			return run() or sendUsablePokemon()
 		end
 	end

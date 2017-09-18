@@ -20,7 +20,7 @@ local elevatorExceptions  = require (cppdpath .. "Maps/MapExceptions/Elevators")
 local transmatExceptions  = require (cppdpath .. "Maps/MapExceptions/Transmats")
 local moveAbilities       = {["cut"] = 0, ["surf"] = 0, ["dig"] = 155, ["rock smash"] = 0, ["dive"] = 155}
 local workAbilities       = {["headbutt"] = 155, ["dig"] = 0}
-local moveItems           = {"Fresh Water", "Marsh Badge", "Zephyr Badge", "Bicycle", "Go-Goggles"}
+local moveItems           = {"Fresh Water", "Marsh Badge", "Zephyr Badge", "Bicycle", "Go-Goggles", "Green Bicycle", "Blue Bicycle", "Yellow Bicycle"}
 local globalMap           = {}
 local pathSolution        = {}
 local settings            = {}
@@ -244,21 +244,28 @@ local function resetPath()
     destStore = ""
 end
 
+local function errorInPath(from, toMap)
+	resetPath()
+	Lib.log1time("Pathfinder --> Error in Path: from " .. from .. " to " .. toMap .. " -- Reset and Recalc")
+	swapPokemon(getTeamSize(), getTeamSize() - 1)
+end
+
 -- try to move with exception, and with the map name if no exception are found.
 local function movingApply(from, toMap)
-    Lib.log1time("Path: Maps Remains: " .. #pathSolution .. "  Moving To: --> " .. toMap)
-    if handleException(from, toMap) then
-        return true
-    else
-        if moveToMap(toMap:gsub("_%u$", "")) then -- remove subMap tag
-            return true
-        else
-            resetPath()
-            Lib.log1time("Pathfinder --> Error in Path: from " .. from .. " to " .. toMap .. " -- Reset and Recalc")
-            swapPokemon(getTeamSize(), getTeamSize() - 1)
-            return true
-        end
-    end
+	if not isSameMap(from, getMapName()) then
+		-- Unexpectedly changed maps, could be due to black-out or moveToGrass/Water/NormalGround putting us on a link
+		errorInPath(from, toMap)
+		return true
+	end
+	Lib.log1time("Path: Maps Remains: " .. #pathSolution .. "  Moving To: --> " .. toMap)
+	if handleException(from, toMap) then
+		return true
+	else
+		if not moveToMap(toMap:gsub("_%u$", "")) then -- remove subMap tag
+			errorInPath(from, toMap)
+		end
+		return true
+	end
 end
 
 -- remove already crossed nodes then try to move
@@ -353,26 +360,30 @@ end
 
 -- main function called by users
 local function moveTo(map, dest)
-    playerNode = getPlayerNode(map)
-    dest = mapsToNodes(dest)
-    if Lib.useMount(settings.mount) then
-        return true
-    elseif checkOutlet() then
-        return true
-    elseif Work.isWorking(map, settings.workOpts) then
-        return true
-    elseif destStore == table.concat(dest, " | ") then
-        return moveWithCalcPath()
-    else
-        settings.abilitiesIndex = validateAbilitiesIndex(settings.abilitiesIndex, moveAbilities)
-        settings.accountItems = validateItems(settings.accountItems, moveItems)
-        pathSolution = simpleAStar(goal(dest))(playerNode)
-        destStore = table.concat(dest, " | ")
-        if not pathSolution then return findSettings(dest) end
-        log("Path: " .. table.concat(pathSolution,"->"))
-        return moveWithCalcPath()
-    end
-    return false
+	if not dest then
+		dest = map
+		map = getMapName()
+	end
+	playerNode = getPlayerNode(map)
+	dest = mapsToNodes(dest)
+	if Lib.useMount(settings.mount) then
+		return true
+	elseif checkOutlet() then
+		return true
+	elseif Work.isWorking(map, settings.workOpts) then
+		return true
+	elseif destStore == table.concat(dest, " | ") then
+		return moveWithCalcPath()
+	else
+		settings.abilitiesIndex = validateAbilitiesIndex(settings.abilitiesIndex, moveAbilities)
+		settings.accountItems = validateItems(settings.accountItems, moveItems)
+		pathSolution = simpleAStar(goal(dest))(playerNode)
+		destStore = table.concat(dest, " | ")
+		if not pathSolution then return findSettings(dest) end
+		log("Path: " .. table.concat(pathSolution,"->"))
+		return moveWithCalcPath()
+	end
+	return false
 end
 
 local function getPath(start, dest)
