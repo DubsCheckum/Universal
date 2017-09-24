@@ -1,11 +1,10 @@
-name = "Universal Traveler"
-author = "Crazy3001"
-description = "Press Start."
 
+--+++++++++++++++++++++++++++++++++++++++--
+--+ THERE IS NO SCRIPT CONFIG FOR THIS, +--
+--+  LOAD THE SCRIPT INTO PROSHINE TO   +--
+--+           SEE THE CONFIG            +--
+--+++++++++++++++++++++++++++++++++++++++--
 
-				--#################################################--
-				-------------------CONFIGURATION-------------------
-				--#################################################--
 --Favorites:
 
 --KANTO
@@ -29,127 +28,89 @@ description = "Press Start."
 --Pokecenter Fortree City       --Pokecenter Mossdeep City     --Pokecenter Rustboro City     --Pokemon League Hoenn
 --
 
-local location = "Pokecenter Celadon"
+setOptionName(1,"Go To Nearest Pokecenter")
+setOptionDescription(1,"Go to the nearest Pokecenter, and disregard the other options.")
 
-local catchNotCaught = 	false --set true if you want to catch pokemon not listed as caught in your pokedex
+setTextOptionName(1,"Location")
+setTextOptionDescription(1,"The location you wish to travel to, and disregard the other options.")
 
-local fight = false  --set true if you want to fight wild encounters on the way. false will run.
+setTextOptionName(2,"Buy Item")
+setTextOptionDescription(2,"An item to purchase from the Pokemart, and disregard the other options.")
 
-local goToNearestPokecenter = 	false  --set true to use the nearest pokecenter
+setTextOptionName(3,"Buy Amount")
+setTextOptionDescription(3,"The amount of the specified 'Buy Item' to buy.")
 
-local buyItem = false  --set true to use nearest pokemart that has the item below
-local item = "" -- put the item you want to buy here
-local amount = 1 -- put the amount of the item you want here
+opt = {
+	goToNearestPokecenter = || getOption(1),
+	location = || getTextOption(1),
+	buyItem = || getTextOption(2),
+	buyAmt = || getTextOption(3),
+}
 
+name = "Universal Traveler"
+author = "DubsCheckum"
+description = "Press Start."
 
-
-				--#################################################--
-				----------------END OF CONFIGURATION-----------------
-				--#################################################--
-
-
-				--#################################################--
-				-------------------START OF SCRIPT-------------------
-				--#################################################--
-
-
-local pf = require "Pathfinder/MoveToApp"
-local map = nil
+local pf = require("Pathfinder/MoveToApp")
+local Path = require("gamelib/Path")
+local Battle = require("gamelib/Battle")
 
 function onStart()
     shinyCounter = 0
     catchCounter = 0
     wildCounter = 0
-	if goToNearestPokecenter == true then
-		log("Travelling to " .. getMapName(goToNearestPokecenter) .. ".")
-	else
-		log("Travelling to " .. location .. ".")
-	end
+	onPause()
 end
 
 function onPause()
-	log("***********************************PAUSED************************************")
-end
-
-function onResume()
-	log("***********************************RESUMED***********************************")
  	if goToNearestPokecenter == true then
-		log("Travelling to " .. getMapName(goToNearestPokecenter) .. ".")
+		log("Info | Travelling to " .. getMapName(goToNearestPokecenter) .. ".")
 	else
-		log("Travelling to " .. location .. ".")
+		log("Info | Travelling to " .. location .. ".")
 	end
 end
 
-function onBattleMessage(wild)
-    if stringContains(wild, "A Wild SHINY ") then
-       shinyCounter = shinyCounter + 1
-       wildCounter = wildCounter + 1
-       log("Info | Shinies Encountered: " .. shinyCounter)
-       log("Info | Pokemon Caught: " .. catchCounter)
-       log("Info | Pokemon Encountered: " .. wildCounter)
-    elseif stringContains(wild, "Success! You caught ") then
-       catchCounter = catchCounter + 1
-       log("Info | Shinies Encountered: " .. shinyCounter)
-       log("Info | Pokemon Caught: " .. catchCounter)
-       log("Info | Pokemon Encountered: " .. wildCounter)
-    elseif stringContains(wild, "A Wild ") then
-       wildCounter = wildCounter + 1
-       log("Info | Shinies Encountered: " .. shinyCounter)
-       log("Info | Pokemon Caught: " .. catchCounter)
-       log("Info | Pokemon Encountered: " .. wildCounter)
-	elseif message == "You failed to run away!" then
-        failedRun = true
-	elseif message == "You can not switch this Pokemon!" then
-		canNotSwitch = true
-    end
+function onBattleMessage(msg)
+	if stringContains(msg, "A Wild SHINY ") then
+		shinyCounter = shinyCounter + 1
+		wildCounter = wildCounter + 1
+	elseif stringContains(msg, "Success! You caught ") then
+		catchCounter = catchCounter + 1
+	elseif stringContains(msg, "A Wild ") then
+	    wildCounter = wildCounter + 1
+	elseif stringContains(msg, "You failed to run away")
+		or stringContains(msg, "You can not run away!")
+	then
+		failedRun = true
+	elseif stringContains(msg, "has fainted") then
+		failedRun = false
+	elseif stringContains(msg, "You can not switch this Pokemon") then
+		failedSwitch = true
+	end
 end
 
 function onPathAction()
-local map = getMapName()
-canNotSwitch = false
-failedRun = false
+	local map = getMapName()
+	failedSwitch = false
 
 	if goToNearestPokecenter == true then
 		pf.useNearestPokecenter(map)
-		if getMapName(goToNearestPokecenter) == getMapName() then
-		end
-	elseif buyItem then
-		if not pf.useNearestPokemart(map, item, amount) then
-			fatal("Finished Buying Item.")
+	elseif opt.buyItem() then
+		if not pf.useNearestPokemart(map, opt.buyItem, opt.buyAmt) then
+			fatal("Info | Finished Buying Item.")
 		end
 	else
 		pf.moveTo(map, location)
-		if getMapName() == location then
+		if getMapName() == opt.location() then
 		end
 	end
 end
 
 function onBattleAction()
-	if isWildBattle() and isOpponentShiny() or (catchNotCaught and not isAlreadyCaught()) then
-		if useItem("Ultra Ball") or useItem("Great Ball") or useItem("Pokeball") then
+	if Battle:IsOpponentDesirable() then
+		if Battle:Catch() then
 			return
 		end
 	end
-	if isWildBattle() then
-		if isPokemonUsable(getActivePokemonNumber()) then
-			if fight then
-				return attack() or sendUsablePokemon() or run()
-			else
-				return run()
-			end
-		else
-			return run() or sendUsablePokemon()
-		end
-	elseif canNotSwitch then
-		canNotSwitch = false
-		return attack() or run()
-	else
-		if failedRun then
-			failedRun = false
-			return sendUsablePokemon() or attack()
-		else
-			return run() or sendUsablePokemon()
-		end
-	end
-	return run() or sendUsablePokemon()
+	return Battle:Run() or sendUsablePokemon()
 end

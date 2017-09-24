@@ -1,62 +1,62 @@
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- START OF CONFIGURATION
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-- Encounter an issue? Contact me on PROShine forums (DubsCheckum)
+-- or on the PROShine Discord server (@nothingispossible#2522)
 
--- Put in the pokemon you want to catch. Leave "" if none. Example: pokemonToCatch = {"Pokemon 1", "Pokemon 2", "Pokemon 3"}
--- {""} if not using!
-pokemonToCatch = {"Magikarp"} --If you have a pokemonToRole, don't put them here too, unless you want to catch that pokemon with any ability.
+--+++++++++++++++++++--
+--+ REQUIRED FIELDS +--
+--+++++++++++++++++++--
 
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
--- Must be filled in. Determines what type of ball to use when catching, and what type to buy. Example: typeBall = "Pokeball"
-local typeBall = "Pokeball"
--- If buying balls, put in the amount of balls you want to have in your inventory.
--- no quotation marks!
-local buyBallAmount = 25
--- Will buy more balls when your type of ball reaches X.
--- no quotation marks!
-local buyBallsAt = 25
-
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-- Put in the pokemon you want to catch. Leave {""} if none. Example: pokemonToCatch = {"Pokemon 1", "Pokemon 2", "Pokemon 3"}
+pokemonToCatch = {"Grimer","Muk"} --If you have a pokemonToRole, don't put them here too, unless you want to catch that pokemon with any ability.
 
 -- Location you want to hunt. Example: location = "Dragons Den"
-local location = "Route 17"
+location = "Route 17"
 
--- Put "Grass" for grass, "Water" for water, {x, y} for fishing cell, {x1, y1, x2, y2} for rectangle
--- If you're using a rectangle, you can set more rectangles to hunt in just by adding 4 more parameters. Example: local area = {x1, y1, x2, y2, x1, y1, x2, y2}
-local huntType = {18,6,23,6}
+-- Put "Grass" for grass, "Water" for water, "Cave" for cave, {x, y} for fishing cell, {x1, y1, x2, y2} for rectangle
+-- If you're using a rectangle, you can set more rectangles to hunt in just by putting the coord tables in another table. Example: huntType = { {x1,y1,x2,y2}, {x1,y1,x2,y2} }
+huntType = {{19,13,20,13}, {22,6,24,7}}
 
--- If you're using multiple rectangles, this is the amount of time in minutes that we'll stay in one rectangle before moving to a different one
--- no quotation marks!
-local minutesToMove = 30
+--+++++++++++++++++++--
+--+ OPTIONAL FIELDS +--
+--+++++++++++++++++++--
 
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+--[[ POKEBALLS ]]--
+typeBall      = "Pokeball" -- Determines what type of ball to use when catching, and what type to buy.
+buyBallsAt    = 25 -- Will buy more balls when your type of ball reaches X. default = 25
+buyBallAmount = 25 -- If buying balls, put in the amount of balls you want to have in your inventory. default = 25
 
--- Put in the nature of your sync Pokemon. Example: syncNature = "Adamant"
--- "" if not using!
-local syncNature = ""
+--[[ SYNCHRONIZE ]]--
+syncNature = "Timid" -- Put in the nature of your sync Pokemon. Example: syncNature = "Adamant". If not using, put "".
 
--- If using Role Play, put in the abilities you want to catch. If not using, put {""}. You can have multiple Abilities/multiple Pokemon. Example: roleAbility = {"Ability 1", "Ability 2", "Ability 3"}
--- {""} if not using!
-local roleAbility = {""}
+--[[ STATUS MOVE ]]--
+useStatus = false
 
--- If using Role Play, put in the pokemon you want to Role. If not using, put {""}. You can have multiple Pokemon. Example: pokemonToRole = {"Pokemon 1", "Pokemon 2"}
--- {""} if not using!
-local pokemonToRole = {""}
+--[[ ROLE PLAY ]]--
+useRolePlay    = true -- Use role play? true/false
+pokemonToRole  = {""} -- If using Role Play, put in the pokemon you want to Role. Example: pokemonToRole = {"Pokemon 1", "Pokemon 2"}.
+desiredAbility = {""} -- If using Role Play, catch pokemon with these desired abilities. Example: desiredAbility = {"Blaze", "Overgrow"}.
 
--- If using a Status Move, set true.
--- Status Move List - {"glare", "stun spore", "thunder wave", "hypnosis", "lovely kiss", "sing", "sleep spore", "spore"}
-local useStatus = false
+--[[ HUNT ]]--
+minutesToSwitch = 1 -- If you're using multiple rectangles or fishing spots, this is the amount of time in minutes that we'll stay in one rectangle before moving to a different one
 
-useRolePlay = false
-desiredAbility = {""}
+-- You can also set huntType presets here for each location (advanced)
+-- These have priority over huntType
+-- Don't touch this if you have no experience with Lua.
+hunt = {
+	["Cerulean Cave"] = "cave",
+	["Route 18"] = {{30,23,33,23},{30,20,30,23}},
+	--["Route 17"] = {{10,27},{21,27}},
+	["Route 17"] = {18,6,23,6}
+	--["Route 17"] = "grass"
+}
 
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
--- END OF CONFIGURATION
---+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  --========================--     --========================--     --========================--
+--=== END OF CONFIGURATION ===-- --=== END OF CONFIGURATION ===-- --=== END OF CONFIGURATION ===--
+  --========================--     --========================--     --========================--
 
-name = "Basic Catcher"
-author = "Crazy3001, reborn by DubsCheckum"
+-- todo: disablepms setOption
+
+name = "Universal Catcher"
+author = "DubsCheckum"
 description = "Make sure your configuration is done properly. Press Start."
 
 pf     = require("Pathfinder/MoveToApp")
@@ -69,6 +69,8 @@ Player = require("gamelib/Player")
 Team   = require("gamelib/Team")
 getPP  = getRemainingPowerPoints
 
+
+
 function onStart()
 	-- lazy config defaults
 	throwHealth = 50
@@ -78,10 +80,11 @@ function onStart()
 	shinyCounter = 0
 	catchCounter = 0
 	wildCounter = 0
+	lineSwitch = false -- Used in moveToLine()
+	switchTimer = os.time()
+	startTime = os.time()
 	rand = 0 -- Used to represent each rectangle in area
 	tmpRand = 0 -- Used to make sure rand is different every time we call math.random
-	lineSwitch = false -- Used in moveToLine()
-	rectTimer = os.time()
 
 	hasFalseSwipe,pokeWithFalseSwipe = Team:HasMove("False Swipe")
 	hasRolePlay,pokeWithRolePlay = Team:HasMove("Role Play")
@@ -93,8 +96,10 @@ function onStart()
 			break
 		end
 	end
+	hasSync,pokeWithSync = Team:HasAbility("Synchronize")
 
 	log("*************************BOT STARTED**************************")
+	log("Info | Synchronize ― "..tostring(hasSync))
 	log("Info | False Swipe ― "..tostring(hasFalseSwipe))
 	log("Info | Status Move ― "..tostring(hasStatusMove))
 	log("Info | Role Play ― "..tostring(hasRolePlay))
@@ -103,14 +108,29 @@ function onStart()
 		+ getItemQuantity("Great Ball")
 		+ getItemQuantity("Ultra Ball"))
 	log("Info | Pokemon to catch ― "..table.concat(pokemonToCatch,", "))
+
+	if hasSync then syncID = getPokemonUniqueId(pokeWithSync) end
+	if hasFalseSwipe then falseSwipeID = getPokemonUniqueId(pokeWithFalseSwipe) end
+	if hasStatus then statusMoveID = getPokemonUniqueId(pokeWithStatusMove) end
+	if hasRolePlay then rolePlayID = getPokemonUniqueId(pokeWithRolePlay) end
+
+	-- move sync to first
+	-- if hasSync and  then
+	-- 	swapPokemonWithLeader(syncID) end
 end
 
 function onPause()
-	log("********************PAUSED - SESSION STATS********************")
+	--todo: pause timer
+	local timeElapsed = |s| string.format("%02d:%02d:%02d",math.floor(s/(60*60)),math.floor(s/60%60),math.floor(s%60))
+	log("******************** PAUSED - "..timeElapsed(os.difftime(os.time(),startTime)).." ********************")
 	log("Info | Shineys encountered: " .. shinyCounter)
 	log("Info | Pokemon caught: " .. catchCounter)
 	log("Info | Pokemon encountered: " .. wildCounter)
-    log("**************************************************************")
+    log("*************************************************************")
+end
+
+function onLearningMove()
+	--todo
 end
 
 function onDialogMessage(msg)
@@ -125,7 +145,14 @@ function onBattleMessage(msg)
 		shinyCounter = shinyCounter + 1
 		wildCounter = wildCounter + 1
 	elseif stringContains(msg, "Success! You caught ") then
+		-- take item from newly caught poke
 		catchCounter = catchCounter + 1
+		local lastIndex = getTeamSize()
+		local item = getPokemonHeldItem(lastIndex)
+		if item then
+			log("Info | Took "..item.." from "..getPokemonName(lastIndex)..".")
+			return takeItemFromPokemon(lastIndex)
+		end
 	elseif stringContains(msg, "A Wild ") then
 	    wildCounter = wildCounter + 1
 	elseif stringContains(msg, "You failed to run away")
@@ -135,37 +162,38 @@ function onBattleMessage(msg)
 	elseif stringContains(msg, "has fainted") then
 		failedRun = false
 	elseif stringContains(msg, "You can not switch this Pokemon") then
-		canNotSwitch = true
+		failedSwitch = true
+	elseif stringContains(msg, "You can't store any more Pokemon.") then
+		fatal("Error | Free some space in the PC, it is full.")
 	end
-	if useRolePlay then
-		for ability in desiredAbility do
-			if stringContains(msg, "is now "..ability) then
-				roleMatched = true
-				break
-			end
-		end
+	-- check for role play match
+	if useRolePlay and stringContains(msg, "is now") then
+		opponentAbility = msg:match("is now (.+)!")
+		log(opponentAbility)
 	end
 end
 
+--todo:
+--		advanced hunt patterns
+--		heal status and health with items
+--      heal when safari is over
+--      settings 4 individual coords for each location
+
 function onPathAction()
-	--todo: take items from newly caught pokes
-	--		advanced hunt patterns
-	--		heal with items
 	opponentAbility = nil
 	roleMatched = false
-	canNotSwitch = false
+	failedSwitch = false
 	failedRun = false
 
 	if buyBalls then
-		local _ballAmt = buyBallAmount - getItemQuantity(typeBall)
 		if getItemQuantity(typeBall) <= buyBallsAt then
-			return Path:Pokemart(typeBall, _ballAmt)
+			return Path:Pokemart(typeBall, buyBallAmount)
 		end
 	end
 	if Team:IsSorted() then
 		if Team:EquippedAll("Leftovers") then
 			if Team:IsUsable() then
-				return Path:Hunt(location, huntType)
+				return Path:Hunt(location)
 			end
 		else
 			return Team:EquipAll("Leftovers")
@@ -176,16 +204,50 @@ function onPathAction()
 	return Path:Pokecenter()
 end
 
+--todo: calculate damages for health predictions (if no false swipe)
+Blacklist = {
+	RolePlay = {Name = "Role Play", Pokemon = {}, Types = {}},
+	FalseSwipe = {Name = "False Swipe", Pokemon = {"Eevee","Beldum","Stantler"}, Types = {"Ghost"}},
+	Status = {Name = "Status Move", Pokemon = {}, Types = {"Grass"}},
+}
+
 function onBattleAction()
 	if Battle:IsOpponentDesirable() then
-		if useRolePlay then
-			return Battle:RolePlay()
-		elseif hasStatusMove and getOpponentStatus() == "None" then
-			return Battle:StatusMove()
-		elseif hasFalseSwipe and getOpponentHealth() > 1 then
-			return Battle:FalseSwipe()
+
+		-- handle syncs
+		if hasSync
+			and not useRolePlay
+			and not hasFalseSwipe
+			and not hasStatusMove
+		then
+			-- syncs are often weak, so we should switch out if there isn't enough leverage for them
+			if getPokemonLevel(1) + 20 < getOpponentLevel() then
+				return Battle:SendHighestUsable()
+			end
 		end
-		return Battle:Catch()
+
+		-- handle role play
+		if useRolePlay then
+			if getPP(pokeWithRolePlay,"Role Play") > 0 and not Battle:IsOnBlacklist(Blacklist.RolePlay) then
+				return Battle:RolePlay()
+			end
+		end
+
+		-- handle false swipe
+		if hasFalseSwipe and getOpponentHealth() > 1 then
+			if getPP(pokeWithFalseSwipe,"False Swipe") > 0 and not Battle:IsOnBlacklist(Blacklist.FalseSwipe) then
+				return Battle:FalseSwipe()
+			end
+		end
+
+		-- handle status moves
+		if hasStatusMove and getOpponentStatus() == "None" then
+			if getPP(pokeWithStatusMove,statusMove) > 0 and not Battle:IsOnBlacklist(Blacklist.Status) then
+				return Battle:StatusMove()
+			end
+		end
+
+		return Battle:Catch() or Battle:Run() or sendAnyPokemon()
 	else
 		return Battle:Run() or attack() or sendUsablePokemon() or sendAnyPokemon()
 	end
