@@ -6,7 +6,7 @@
 --+++++++++++++++++++--
 
 -- Put in the pokemon you want to catch. Leave {""} if none. Example: pokemonToCatch = {"Pokemon 1", "Pokemon 2", "Pokemon 3"}
-pokemonToCatch = {"Grimer","Muk"} --If you have a pokemonToRole, don't put them here too, unless you want to catch that pokemon with any ability.
+pokemonToCatch = {"Grimer","Muk","Spearow"} --If you have a pokemonToRole, don't put them here too, unless you want to catch that pokemon with any ability.
 
 -- Location you want to hunt. Example: location = "Dragons Den"
 location = "Route 17"
@@ -32,7 +32,7 @@ useStatus = false
 
 --[[ ROLE PLAY ]]--
 useRolePlay    = true -- Use role play? true/false
-pokemonToRole  = {""} -- If using Role Play, put in the pokemon you want to Role. Example: pokemonToRole = {"Pokemon 1", "Pokemon 2"}.
+pokemonToRole  = {"Spearow"} -- If using Role Play, put in the pokemon you want to Role. Example: pokemonToRole = {"Pokemon 1", "Pokemon 2"}.
 desiredAbility = {""} -- If using Role Play, catch pokemon with these desired abilities. Example: desiredAbility = {"Blaze", "Overgrow"}.
 
 --[[ HUNT ]]--
@@ -68,8 +68,6 @@ PC     = require("gamelib/PC")
 Player = require("gamelib/Player")
 Team   = require("gamelib/Team")
 getPP  = getRemainingPowerPoints
-
-
 
 function onStart()
 	-- lazy config defaults
@@ -111,7 +109,7 @@ function onStart()
 
 	if hasSync then syncID = getPokemonUniqueId(pokeWithSync) end
 	if hasFalseSwipe then falseSwipeID = getPokemonUniqueId(pokeWithFalseSwipe) end
-	if hasStatus then statusMoveID = getPokemonUniqueId(pokeWithStatusMove) end
+	if hasStatusMove then statusMoveID = getPokemonUniqueId(pokeWithStatusMove) end
 	if hasRolePlay then rolePlayID = getPokemonUniqueId(pokeWithRolePlay) end
 
 	-- move sync to first
@@ -212,20 +210,16 @@ Blacklist = {
 }
 
 function onBattleAction()
-	if Battle:IsOpponentDesirable() then
-
-		-- handle syncs
-		if hasSync
-			and not useRolePlay
-			and not hasFalseSwipe
-			and not hasStatusMove
-		then
-			-- syncs are often weak, so we should switch out if there isn't enough leverage for them
-			if getPokemonLevel(1) + 20 < getOpponentLevel() then
-				return Battle:SendHighestUsable()
-			end
+			-- handle syncs
+	if hasSync and getActivePokemonNumber() == 1 then
+		-- syncs are often weak, so we should switch out if there isn't enough leverage for them
+		if getPokemonLevel(1) + 20 < getOpponentLevel() then
+			log("switch from weak sync")
+			return Battle:SendHighestUsable()
 		end
+	end
 
+	if Battle:IsOpponentDesirable() then
 		-- handle role play
 		if useRolePlay then
 			if getPP(pokeWithRolePlay,"Role Play") > 0 and not Battle:IsOnBlacklist(Blacklist.RolePlay) then

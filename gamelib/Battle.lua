@@ -51,7 +51,7 @@ function Battle:RolePlay()
 		if isPokemonUsable(pokeWithRolePlay) and getActivePokemonNumber() ~= pokeWithRolePlay then
 			return sendPokemon(pokeWithRolePlay)
 		elseif not Table:Contains(desiredAbility,opponentAbility) and opponentAbility ~= nil then
-			self:Run()
+			return self:Run()
 		end
 		return useMove("Role Play") or cantUse("Role Play")
 	else

@@ -19,15 +19,13 @@ local function moveToLine(coords)
 	if lineSwitch then
 		if getPlayerX() == coords[1] and getPlayerY() == coords[2] then
 			lineSwitch = not lineSwitch
-		else
-			return assert(moveToCell(coords[1], coords[2]),"Error | Can't moveToLine")
 		end
+		return assert(moveToCell(coords[1], coords[2]),"Error | Can't moveToLine")
 	else
 		if getPlayerX() == coords[3] and getPlayerY() == coords[4] then
 			lineSwitch = not lineSwitch
-		else
-			return assert(moveToCell(coords[3], coords[4]),"Error | Can't moveToLine")
 		end
+		return assert(moveToCell(coords[3], coords[4]),"Error | Can't moveToLine")
 	end
 end
 
@@ -60,17 +58,17 @@ local function moveToRect(list)
     end
 
     if list[rand][1] == list[rand][3] or list[rand][2] == list[rand][4] then
-        return moveToLine({list[rand][1], list[rand][2], list[rand][3], list[rand][4]})
-    else
-        return moveToRectangle(list[rand][1], list[rand][2], list[rand][3], list[rand][4])
+        return assert(moveToLine({list[rand][1], list[rand][2], list[rand][3], list[rand][4]}),"Error | Can't moveToLine()")
     end
+
+    return moveToRectangle(list[rand][1], list[rand][2], list[rand][3], list[rand][4])
 end
 
 --todo: switch between rectangles
 function Path:Hunt(location)
 	local map = getMapName()
 
-	if map:lower() == location:gsub("_%w", ""):lower() then
+	if pf.mapName():lower() == location:lower() then
 		local huntType = huntType -- create local huntType to manipulate
 		if hunt[map] then huntType = hunt[map] end -- assign presets
 
