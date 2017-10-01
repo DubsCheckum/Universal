@@ -222,10 +222,8 @@ function onBattleAction()
 		-- there isn't enough leverage for them
 		if getPokemonLevel(1) < (getOpponentLevel() + 10) then
 			if useRolePlay then
-				if getPP(pokeWithRolePlay,"Role Play") > 0
-					and not Battle:IsOnBlacklist(Blacklist.RolePlay)
-				then
-					return sendPokemon(pokeWithRolePlay)
+				return sendPokemon(pokeWithRolePlay) or Battle:SendHighestUsable()
+			end
 			return Battle:SendHighestUsable()
 		end
 	end
