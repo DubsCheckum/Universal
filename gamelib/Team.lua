@@ -24,6 +24,7 @@ and thus, the type of sort needed
 ]]--
 function Team:Sort()
 	--todo: optimize this lol
+	hasTeamOrderChanged = true
 	local name = name:lower()
 	if stringContains(name,"catch") then
 		if hasSync then

@@ -9,7 +9,7 @@
 pokemonToCatch = {"Grimer","Muk","Spearow"} --If you have a pokemonToRole, don't put them here too, unless you want to catch that pokemon with any ability.
 
 -- Location you want to hunt. Example: location = "Dragons Den"
-location = "Route 17"
+location = "Route 18_B"
 
 -- Put "Grass" for grass, "Water" for water, "Cave" for cave, {x, y} for fishing cell, {x1, y1, x2, y2} for rectangle
 -- If you're using a rectangle, you can set more rectangles to hunt in just by putting the coord tables in another table. Example: huntType = { {x1,y1,x2,y2}, {x1,y1,x2,y2} }
@@ -32,15 +32,15 @@ useStatus = false
 
 --[[ ROLE PLAY ]]--
 useRolePlay    = true -- Use role play? true/false
-pokemonToRole  = {"Spearow"} -- If using Role Play, put in the pokemon you want to Role. Example: pokemonToRole = {"Pokemon 1", "Pokemon 2"}.
-desiredAbility = {""} -- If using Role Play, catch pokemon with these desired abilities. Example: desiredAbility = {"Blaze", "Overgrow"}.
+pokemonToRole  = {"Spearow","Grimer"} -- If using Role Play, put in the pokemon you want to Role. Example: pokemonToRole = {"Pokemon 1", "Pokemon 2"}.
+desiredAbility = {"Sticky Hold"} -- If using Role Play, catch pokemon with these desired abilities. Example: desiredAbility = {"Blaze", "Overgrow"}.
 
 --[[ HUNT ]]--
 minutesToSwitch = 1 -- If you're using multiple rectangles or fishing spots, this is the amount of time in minutes that we'll stay in one rectangle before moving to a different one
 
 -- You can also set huntType presets here for each location (advanced)
 -- These have priority over huntType
--- Don't touch this if you have no experience with Lua.
+-- /!\ Don't touch this if you have no experience with Lua.
 hunt = {
 	["Cerulean Cave"] = "cave",
 	["Route 18"] = {{30,23,33,23},{30,20,30,23}},
@@ -69,6 +69,20 @@ Player = require("gamelib/Player")
 Team   = require("gamelib/Team")
 getPP  = getRemainingPowerPoints
 
+statusMoves = {"Spore","Sleep Powder","Hypnosis","Lovely Kiss","Sing","Glare","Stun Spore","Thunder Wave"}
+function refreshPokeIndexValues()
+	hasFalseSwipe,pokeWithFalseSwipe = Team:HasMove("False Swipe")
+	hasRolePlay,pokeWithRolePlay = Team:HasMove("Role Play")
+	for moveName in pairs(statusMoves) do
+		hasStatusMove,pokeWithStatusMove = Team:HasMove(moveName)
+		if hasStatusMove then
+			statusMove = moveName
+			break
+		end
+	end
+	hasSync,pokeWithSync = Team:HasAbility("Synchronize")
+end
+
 function onStart()
 	-- lazy config defaults
 	throwHealth = 50
@@ -84,17 +98,7 @@ function onStart()
 	rand = 0 -- Used to represent each rectangle in area
 	tmpRand = 0 -- Used to make sure rand is different every time we call math.random
 
-	hasFalseSwipe,pokeWithFalseSwipe = Team:HasMove("False Swipe")
-	hasRolePlay,pokeWithRolePlay = Team:HasMove("Role Play")
-	statusMoves = {"Spore","Sleep Powder","Hypnosis","Lovely Kiss","Sing","Glare","Stun Spore","Thunder Wave"}
-	for moveName in pairs(statusMoves) do
-		hasStatusMove,pokeWithStatusMove = Team:HasMove(moveName)
-		if hasStatusMove then
-			statusMove = moveName
-			break
-		end
-	end
-	hasSync,pokeWithSync = Team:HasAbility("Synchronize")
+	refreshPokeIndexValues()
 
 	log("*************************BOT STARTED**************************")
 	log("Info | Synchronize ― "..tostring(hasSync))
@@ -151,16 +155,13 @@ function onBattleMessage(msg)
 			log("Info | Took "..item.." from "..getPokemonName(lastIndex)..".")
 			return takeItemFromPokemon(lastIndex)
 		end
-	elseif stringContains(msg, "A Wild ") then
-	    wildCounter = wildCounter + 1
+	elseif stringContains(msg, "A Wild ") then wildCounter = wildCounter + 1
 	elseif stringContains(msg, "You failed to run away")
 		or stringContains(msg, "You can not run away!")
 	then
 		failedRun = true
-	elseif stringContains(msg, "has fainted") then
-		failedRun = false
-	elseif stringContains(msg, "You can not switch this Pokemon") then
-		failedSwitch = true
+	elseif stringContains(msg, "has fainted") then failedRun = false
+	elseif stringContains(msg, "You can not switch this Pokemon") then failedSwitch = true
 	elseif stringContains(msg, "You can't store any more Pokemon.") then
 		fatal("Error | Free some space in the PC, it is full.")
 	end
@@ -175,9 +176,13 @@ end
 --		advanced hunt patterns
 --		heal status and health with items
 --      heal when safari is over
---      settings 4 individual coords for each location
+--      settings for individual coords for each location
 
 function onPathAction()
+	if hasTeamOrderChanged then
+		refreshPokeIndexValues()
+		hasTeamOrderChanged = false
+	end
 	opponentAbility = nil
 	roleMatched = false
 	failedSwitch = false
@@ -203,6 +208,7 @@ function onPathAction()
 end
 
 --todo: calculate damages for health predictions (if no false swipe)
+
 Blacklist = {
 	RolePlay = {Name = "Role Play", Pokemon = {}, Types = {}},
 	FalseSwipe = {Name = "False Swipe", Pokemon = {"Eevee","Beldum","Stantler"}, Types = {"Ghost"}},
@@ -210,11 +216,16 @@ Blacklist = {
 }
 
 function onBattleAction()
-			-- handle syncs
+	-- handle sync
 	if hasSync and getActivePokemonNumber() == 1 then
-		-- syncs are often weak, so we should switch out if there isn't enough leverage for them
-		if getPokemonLevel(1) + 20 < getOpponentLevel() then
-			log("switch from weak sync")
+		-- syncs are often weak, so we should switch out if
+		-- there isn't enough leverage for them
+		if getPokemonLevel(1) < (getOpponentLevel() + 10) then
+			if useRolePlay then
+				if getPP(pokeWithRolePlay,"Role Play") > 0
+					and not Battle:IsOnBlacklist(Blacklist.RolePlay)
+				then
+					return sendPokemon(pokeWithRolePlay)
 			return Battle:SendHighestUsable()
 		end
 	end
@@ -222,21 +233,27 @@ function onBattleAction()
 	if Battle:IsOpponentDesirable() then
 		-- handle role play
 		if useRolePlay then
-			if getPP(pokeWithRolePlay,"Role Play") > 0 and not Battle:IsOnBlacklist(Blacklist.RolePlay) then
+			if getPP(pokeWithRolePlay,"Role Play") > 0
+				and not Battle:IsOnBlacklist(Blacklist.RolePlay)
+			then
 				return Battle:RolePlay()
 			end
 		end
 
 		-- handle false swipe
 		if hasFalseSwipe and getOpponentHealth() > 1 then
-			if getPP(pokeWithFalseSwipe,"False Swipe") > 0 and not Battle:IsOnBlacklist(Blacklist.FalseSwipe) then
+			if getPP(pokeWithFalseSwipe,"False Swipe") > 0
+				and not Battle:IsOnBlacklist(Blacklist.FalseSwipe)
+			then
 				return Battle:FalseSwipe()
 			end
 		end
 
 		-- handle status moves
 		if hasStatusMove and getOpponentStatus() == "None" then
-			if getPP(pokeWithStatusMove,statusMove) > 0 and not Battle:IsOnBlacklist(Blacklist.Status) then
+			if getPP(pokeWithStatusMove,statusMove) > 0
+				and not Battle:IsOnBlacklist(Blacklist.Status)
+			then
 				return Battle:StatusMove()
 			end
 		end

@@ -100,7 +100,7 @@ function Battle:SendHighestUsable()
 			highestLvlIndex = i
 		end
 	end
-	return swapPokemonWithLeader(highestLvlIndex)
+	return sendPokemon(highestLvlIndex)
 end
 
 function Battle:WeakAttack()

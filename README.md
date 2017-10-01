@@ -10,5 +10,5 @@ Note: Any lines prefixed with two hyphens, "--", are comments,
       are just a description of the setting.
 
 ## Configuration Rules:
-- Alphabetical values MUST be enclosed in quotation marks (excluding true/false)
-- Numeric values MUST NOT be enclosed in quotation marks (excluding route/floor names)
+- Alphabetic values MUST be enclosed in quotation marks (excluding true/false)
+- Numeric values MUST NOT be enclosed in quotation marks (excluding map names)
